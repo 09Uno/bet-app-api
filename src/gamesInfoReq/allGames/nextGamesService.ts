@@ -13,7 +13,7 @@ interface game {
 
 class NextGamesService {
     async execute() {
-        const browser = await puppeteer.launch({ headless: false });
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         await page.goto("https://www.flashscore.com.br");
 
@@ -61,47 +61,36 @@ class NextGamesService {
                 const propsAway = await dataAway?.getProperty("textContent");
 
 
-                game.country = await propsCountry?.jsonValue();
-                game.league = await propsLeague?.jsonValue();
+                var country = await propsCountry?.jsonValue();
+                var league = await propsLeague?.jsonValue();
 
-                game.time = await propsTime?.jsonValue();
-                game.home = await propsHome?.jsonValue();
-                game.away = await propsAway?.jsonValue();
-                game.status = await propStatus?.jsonValue();
+                const home = await propsHome?.jsonValue();
+                const away = await propsAway?.jsonValue();
+                const period = await propsTime?.jsonValue();
+                const status = await propStatus?.jsonValue();
+
+                const gameInfo = []
 
 
-
-
-                // gamesList.push(game.country);
-
-                // gamesList.push(game.league);
-
-                if (game.home) {
-                    gamesList.push(game.home);
-
-                }
-
-                if (game.away) {
-                    gamesList.push(game.away);
-
-                }
-                if (game.time || game.status) {
-                    gamesList.push(game.status || game.time);
-
-                }
+                gameInfo.push({ 'country': 'country', 'league': 'league' })
 
 
 
-
+                const time = period || status;
+                gamesList.push({ gameInfo, home, away, time })
 
             }
+
         }
 
 
 
-        console.log(gamesList);
+        page.close();
+        console.log(section2?.length);
         return gamesList;
     }
+
+
 }
 
 export { NextGamesService };
