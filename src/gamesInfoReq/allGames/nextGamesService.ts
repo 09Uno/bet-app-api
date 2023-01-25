@@ -1,12 +1,30 @@
 import puppeteer from "puppeteer";
 
-interface game {
 
+
+interface GamesInfoSection {
+
+    infoSection: InfoSection;
+    games: Games;
+
+}
+
+type InfoSection = {
+
+    country: string | undefined;
+    league: string | undefined;
+
+}
+
+type Games = {
 
     home: string | null | undefined;
     away: string | null | undefined;
+    homeScore: string | null | undefined;
+    awayScore: string | null | undefined;
+    flagHome: string | null | undefined | unknown;
+    flagAway: string | null | undefined | unknown;
     time: string | null | undefined;
-    status: string | null | undefined;
 
 }
 
@@ -17,28 +35,29 @@ class NextGamesService {
         await page.goto("https://www.flashscore.com.br");
 
         const element = await page.$("#live-table > section");
+        const element2 = await page.$("#live-table > section");
+
 
         const section = await element?.$$(".event .soccer .event__match--twoLine");
-        const section2 = await element?.$$(".event__header.top");
+        const section2 = await element2?.$$(" .event__header");
 
         const gamesList = [];
 
 
         if (section != null && section2 != null) {
-            const game: game = {
 
 
-                home: '',
-                away: '',
-                time: '',
-                status: ''
 
 
-            };
+
+
 
             for (let index = 0; index < section.length; index++) {
-                const element = section[index];
+                
+                
 
+                const element = section[index];
+                const element2 = section2[index];
 
                 const dataHome = await element?.$("div.event__participant.event__participant--home");
                 const propsHome = await dataHome?.getProperty("textContent");
@@ -65,6 +84,14 @@ class NextGamesService {
                 const propStatus = await dataStatus?.getProperty("textContent");
 
 
+                const dataCountry = await element2?.$('.event__header .event__title--type',);
+                const propsCountry = await dataCountry?.getProperty("textContent");
+                const country = await propsCountry?.jsonValue();
+
+
+                const dataLeague = await element2?.$('.event__header .event__title--name',);
+                const propsLeague = await dataLeague?.getProperty("textContent");
+                const league = await propsLeague?.jsonValue();
 
 
 
@@ -74,19 +101,49 @@ class NextGamesService {
                 const awayScore = await propsAwayScore?.jsonValue();
                 const flagHome = await propsFlagHome?.jsonValue();
                 const flagAway = await propsFlagAway?.jsonValue();
+
+
                 const period = await propsTime?.jsonValue();
                 const status = await propStatus?.jsonValue();
 
 
-
                 const time = period || status;
-                gamesList.push({ home, away, homeScore, awayScore, flagHome, flagAway, time })
 
+
+
+
+                const infoSection: InfoSection = {
+
+                    country: country || undefined,
+                    league: league || undefined
+                }
+
+                const games: Games = {
+
+                    home: home,
+                    away: away,
+                    homeScore: homeScore,
+                    awayScore: awayScore,
+                    flagHome: flagHome,
+                    flagAway: flagAway,
+                    time: time
+
+                }
+
+                const gamesInfoSection: GamesInfoSection = {
+                    infoSection: infoSection,
+                    games: games,
+                }
+
+
+                gamesList.push(gamesInfoSection);
+
+                
 
             }
 
-        }
 
+        }
         page.close();
         return gamesList;
     }

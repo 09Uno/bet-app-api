@@ -16,16 +16,7 @@ class NextGamesController {
 
         const games = await nextGamesService.execute();
 
-        let i = 0;
-        var data1 = [];
-        while (i < games.length) {
-            data1.push(games.slice(i, i + 6));
-            i += 6;
-        }
-
-        const data = data1;
-
-        return res.json(data);
+        return res.json(games);
 
 
 
