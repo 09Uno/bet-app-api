@@ -19,8 +19,8 @@ class NextGamesController {
         let i = 0;
         var data1 = [];
         while (i < games.length) {
-            data1.push(games.slice(i, i + 5));
-            i += 5;
+            data1.push(games.slice(i, i + 6));
+            i += 6;
         }
 
         const data = data1;
