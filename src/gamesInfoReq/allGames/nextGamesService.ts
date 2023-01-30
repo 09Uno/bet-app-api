@@ -109,31 +109,30 @@ class NextGamesService {
 
 
                     const time = period || status;
-
-
-
+                    const homeScoreNumber = homeScore || "-"
+                    const awayScoreNumber = awayScore || "-"
 
                     const infoSection: InfoSection = {
-
+                        
                         id: index.toString(),
                         country: country || null,
                         league: league || null,
                     }
 
                     const games: Games = {
-
-
+                        
+                        
                         id: index.toString(),
                         home: home,
                         away: away,
-                        homeScore: homeScore,
-                        awayScore: awayScore,
+                        homeScore: homeScoreNumber,
+                        awayScore: awayScoreNumber,
                         flagHome: flagHome,
                         flagAway: flagAway,
                         time: time
-
+                        
                     }
-
+                    
                     const gamesInfoSection: GamesInfoSection = {
                         infoSection: infoSection,
                         games: games,
