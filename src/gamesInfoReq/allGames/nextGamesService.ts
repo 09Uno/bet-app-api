@@ -3,13 +3,14 @@ import puppeteer from "puppeteer";
 
 
 interface GamesInfoSection {
+    idSection   : number;
     games: Games | null | undefined;
     infoSection: InfoSection | null | undefined;
 }
 
 type InfoSection = {
 
-    id : string;
+    id: number;
     country: string | null | undefined;
     league: string | null | undefined;
 
@@ -17,7 +18,7 @@ type InfoSection = {
 
 type Games = {
 
-    id : string;
+    id: number;
     home: string | null | undefined;
     away: string | null | undefined;
     homeScore: string | null | undefined;
@@ -45,11 +46,13 @@ class NextGamesService {
 
 
 
+
                 for (let index = 0; index < section.length; index++) {
 
 
+
                     const element = section[index];
-                    
+
 
 
                     const dataCountry = await element?.$(` div > div.icon--flag.event__title > div > span.event__title--type`,);
@@ -112,17 +115,23 @@ class NextGamesService {
                     const homeScoreNumber = homeScore || "-"
                     const awayScoreNumber = awayScore || "-"
 
+                    var infoId 
+
+                    if (country && league) {
+                        infoId = index
+                    }
+
+                    if(infoId){
                     const infoSection: InfoSection = {
-                        
-                        id: index.toString(),
-                        country: country || null,
-                        league: league || null,
+
+                        id: infoId,
+                        country: country,
+                        league: league,
                     }
 
                     const games: Games = {
-                        
-                        
-                        id: index.toString(),
+
+                        id: infoId,
                         home: home,
                         away: away,
                         homeScore: homeScoreNumber,
@@ -130,19 +139,21 @@ class NextGamesService {
                         flagHome: flagHome,
                         flagAway: flagAway,
                         time: time
-                        
+
                     }
-                    
+
                     const gamesInfoSection: GamesInfoSection = {
+
+                        idSection: index,
                         infoSection: infoSection,
                         games: games,
                     }
 
-                    console.log(country);
+                    console.log(infoSection);
 
                     gamesList.push(gamesInfoSection);
 
-
+                }
 
                 }
 
@@ -157,7 +168,7 @@ class NextGamesService {
 
         } catch (error) {
             console.log(error + "Erro identificado ao tentar acessar os dados da página");
-            return error + "Erro identificado ao tentar acessar os dados da página"; 
+            return error + "Erro identificado ao tentar acessar os dados da página";
         }
 
 
