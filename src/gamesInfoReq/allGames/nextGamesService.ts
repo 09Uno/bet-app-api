@@ -3,14 +3,14 @@ import puppeteer from "puppeteer";
 
 
 interface GamesInfoSection {
-    idSection   : number;
+    idMain   : string;
     games: Games | null | undefined;
     infoSection: InfoSection | null | undefined;
 }
 
 type InfoSection = {
 
-    id: number;
+    idInfo: string;
     country: string | null | undefined;
     league: string | null | undefined;
 
@@ -18,7 +18,7 @@ type InfoSection = {
 
 type Games = {
 
-    id: number;
+    idGame: string;
     home: string | null | undefined;
     away: string | null | undefined;
     homeScore: string | null | undefined;
@@ -31,6 +31,9 @@ type Games = {
 
 class NextGamesService {
     async execute() {
+        var count2 = 0;
+        var count = 0;
+        
         try {
             const browser = await puppeteer.launch({ headless: false });
             const page = await browser.newPage();
@@ -116,22 +119,30 @@ class NextGamesService {
                     const awayScoreNumber = awayScore || "-"
 
                     var infoId 
-
-                    if (country && league) {
-                        infoId = index
+                    var gameId;
+                   
+                    if (country && league != null || country && league != undefined) {
+                        count ++;
+                        infoId = count.toString()
                     }
+                    if(home && away != null || home && away != undefined){
+                        count2 ++;
+                        gameId = count2.toString()
+                    }
+                    console.log(infoId);
+                    console.log(gameId);
 
-                    if(infoId){
+                    if(infoId && gameId){
                     const infoSection: InfoSection = {
 
-                        id: infoId,
+                        idInfo: infoId,
                         country: country,
                         league: league,
                     }
 
                     const games: Games = {
 
-                        id: infoId,
+                        idGame : gameId,
                         home: home,
                         away: away,
                         homeScore: homeScoreNumber,
@@ -144,12 +155,12 @@ class NextGamesService {
 
                     const gamesInfoSection: GamesInfoSection = {
 
-                        idSection: index,
+                        idMain: index.toString(),
                         infoSection: infoSection,
                         games: games,
                     }
 
-                    console.log(infoSection);
+                    console.log({ infoId, gameId});
 
                     gamesList.push(gamesInfoSection);
 
