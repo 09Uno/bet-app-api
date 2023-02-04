@@ -66,6 +66,16 @@ class NextGamesService {
                     //getting the data from the games info section
 
                     //getting the data from the section containing the country and league
+
+
+                    // const dataShowMore = await element?.$(`div.event__info`,);
+                    // const propsShowMore = await dataShowMore?.getProperty("textContent");
+                    // const showMore = await propsShowMore?.jsonValue();
+                    // if (showMore?.includes("exibir jogos")) {
+
+                    //     await dataShowMore?.click();
+                    // }
+
                     const dataCountry = await element?.$(` div > div.icon--flag.event__title > div > span.event__title--type`,);
                     const propsCountry = await dataCountry?.getProperty("textContent");
 
@@ -106,6 +116,7 @@ class NextGamesService {
 
 
                     //getting the values from the data
+
                     const country = await propsCountry?.jsonValue();
                     const league = await propsLeague?.jsonValue();
                     const home = await propsHome?.jsonValue();
@@ -141,10 +152,10 @@ class NextGamesService {
 
                     //checking if the values are null or undefined, to create the objects
                     if (infoId && gameId) {
-                        
+
                         //creating the objects
                         const infoSection: InfoSection = {
-                            
+
                             idInfo: infoId,
                             idSection: infoId,
                             country: country,
@@ -162,23 +173,23 @@ class NextGamesService {
                             flagHome: flagHome,
                             flagAway: flagAway,
                             time: time
-                            
+
                         }
 
                         const gamesInfoSection: GamesInfoSection = {
-                            
+
                             idMain: index.toString(),
                             infoSection: infoSection,
                             games: games,
                         }
 
-                        
-                        
+
+
                         //pushing the objects to the array
                         gamesList.push(gamesInfoSection);
-                        
+
                         //just to check if the objects are being created
-                        console.log(gamesInfoSection);
+
                     }
 
                 }
@@ -186,7 +197,7 @@ class NextGamesService {
 
             }
 
-            await browser.close();
+            //closing the browser
             page.close();
             return gamesList;
 
