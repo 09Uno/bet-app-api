@@ -3,7 +3,7 @@ import puppeteer from "puppeteer";
 
 
 interface GamesInfoSection {
-    idMain   : string;
+    idMain: string;
     games: Games | null | undefined;
     infoSection: InfoSection | null | undefined;
 }
@@ -11,6 +11,7 @@ interface GamesInfoSection {
 type InfoSection = {
 
     idInfo: string;
+    idSection: string;
     country: string | null | undefined;
     league: string | null | undefined;
 
@@ -19,6 +20,7 @@ type InfoSection = {
 type Games = {
 
     idGame: string;
+    idSection: string;
     home: string | null | undefined;
     away: string | null | undefined;
     homeScore: string | null | undefined;
@@ -31,45 +33,49 @@ type Games = {
 
 class NextGamesService {
     async execute() {
+
+        //counts to create id's to section and games
         var count2 = 0;
         var count = 0;
-        
+
         try {
+            //using library puppeteer to get data from flashscore.com.br or the site you want
+
+            //you need to put the headless option as false to see the browser opening
             const browser = await puppeteer.launch({ headless: false });
             const page = await browser.newPage();
             await page.goto("https://www.flashscore.com.br");
 
+            //getting the element that contains the games
             const element = await page.$("#live-table");
             const section = await element?.$$("section > div > div > div");
 
             const gamesList = [];
 
-
+            //checking if the element exists
             if (section != null && section != null) {
 
 
 
-
+                //looping through the games
                 for (let index = 0; index < section.length; index++) {
-
 
 
                     const element = section[index];
 
+                    //getting the data from the games info section
 
-
+                    //getting the data from the section containing the country and league
                     const dataCountry = await element?.$(` div > div.icon--flag.event__title > div > span.event__title--type`,);
                     const propsCountry = await dataCountry?.getProperty("textContent");
-                    const country = await propsCountry?.jsonValue();
-
 
                     const dataLeague = await element?.$(`div > div.icon--flag.event__title > div > span.event__title--name`,);
                     const propsLeague = await dataLeague?.getProperty("textContent");
-                    const league = await propsLeague?.jsonValue();
 
 
+                    //getting the data from the games section
 
-
+                    //getting the data from the section containing the home and away teams        
                     const dataHome = await element?.$("div.event__participant.event__participant--home");
                     const propsHome = await dataHome?.getProperty("textContent");
 
@@ -88,6 +94,8 @@ class NextGamesService {
                     const dataFlagAway = await element?.$('.event__match--twoLine .event__logo--away')
                     const propsFlagAway = await dataFlagAway?.getProperty("src");
 
+
+                    //getting the data from the section containing the time and status of the game
                     const dataTime = await element?.$('div.event__time');
                     const propsTime = await dataTime?.getProperty("textContent");
 
@@ -97,84 +105,90 @@ class NextGamesService {
 
 
 
-
+                    //getting the values from the data
+                    const country = await propsCountry?.jsonValue();
+                    const league = await propsLeague?.jsonValue();
                     const home = await propsHome?.jsonValue();
                     const away = await propsAway?.jsonValue();
                     const homeScore = await propsHomeScore?.jsonValue();
                     const awayScore = await propsAwayScore?.jsonValue();
                     const flagHome = await propsFlagHome?.jsonValue();
                     const flagAway = await propsFlagAway?.jsonValue();
-
-
                     const period = await propsTime?.jsonValue();
                     const status = await propStatus?.jsonValue();
 
-
-
-
-
-
+                    //checking if the due values are null or undefined, to replace them with a default value
                     const time = period || status;
                     const homeScoreNumber = homeScore || "-"
                     const awayScoreNumber = awayScore || "-"
 
-                    var infoId 
+                    //creating id's to section and games
+                    var infoId
                     var gameId;
-                   
+
+                    //checking if the values are null or undefined, to create the id's counting the number of games and sections
                     if (country && league != null || country && league != undefined) {
-                        count ++;
+                        count++;
                         infoId = count.toString()
                     }
-                    if(home && away != null || home && away != undefined){
-                        count2 ++;
+                    if (home && away != null || home && away != undefined) {
+                        count2++;
                         gameId = count2.toString()
                     }
-                    console.log(infoId);
-                    console.log(gameId);
 
-                    if(infoId && gameId){
-                    const infoSection: InfoSection = {
 
-                        idInfo: infoId,
-                        country: country,
-                        league: league,
+                    //creating the objects to be returned
+
+                    //checking if the values are null or undefined, to create the objects
+                    if (infoId && gameId) {
+                        
+                        //creating the objects
+                        const infoSection: InfoSection = {
+                            
+                            idInfo: infoId,
+                            idSection: infoId,
+                            country: country,
+                            league: league,
+                        }
+
+                        const games: Games = {
+
+                            idGame: gameId,
+                            idSection: infoId,
+                            home: home,
+                            away: away,
+                            homeScore: homeScoreNumber,
+                            awayScore: awayScoreNumber,
+                            flagHome: flagHome,
+                            flagAway: flagAway,
+                            time: time
+                            
+                        }
+
+                        const gamesInfoSection: GamesInfoSection = {
+                            
+                            idMain: index.toString(),
+                            infoSection: infoSection,
+                            games: games,
+                        }
+
+                        
+                        
+                        //pushing the objects to the array
+                        gamesList.push(gamesInfoSection);
+                        
+                        //just to check if the objects are being created
+                        console.log(gamesInfoSection);
                     }
-
-                    const games: Games = {
-
-                        idGame : gameId,
-                        home: home,
-                        away: away,
-                        homeScore: homeScoreNumber,
-                        awayScore: awayScoreNumber,
-                        flagHome: flagHome,
-                        flagAway: flagAway,
-                        time: time
-
-                    }
-
-                    const gamesInfoSection: GamesInfoSection = {
-
-                        idMain: index.toString(),
-                        infoSection: infoSection,
-                        games: games,
-                    }
-
-                    console.log({ infoId, gameId});
-
-                    gamesList.push(gamesInfoSection);
-
-                }
 
                 }
 
 
             }
+
+            await browser.close();
             page.close();
             return gamesList;
-
-
-
 
 
         } catch (error) {
@@ -182,10 +196,7 @@ class NextGamesService {
             return error + "Erro identificado ao tentar acessar os dados da página";
         }
 
-
-
     }
-
 
 }
 
