@@ -1,5 +1,11 @@
-import puppeteer from "puppeteer";
 
+
+import puppeteer from "puppeteer";
+import { v4 as uuidv4 } from 'uuid';
+
+const id = uuidv4();
+
+console.log(id);
 
 
 interface GamesInfoSection {
@@ -35,16 +41,16 @@ class NextGamesService {
     async execute() {
 
         //counts to create id's to section and games
-        var count2 = 0;
-        var count = 0;
+        var count2 = -1;
+        var count = -1;
 
         try {
-            //using library puppeteer to get data from flashscore.com.br or the site you want
+            //using library puppeteer to get data from livescore.com.br or the site you want
 
             //you need to put the headless option as false to see the browser opening
             const browser = await puppeteer.launch({ headless: false });
             const page = await browser.newPage();
-            await page.goto("https://www.flashscore.com.br");
+            await page.goto("https://www.livescore.in/br/");
 
             //getting the element that contains the games
             const element = await page.$("#live-table");
@@ -67,18 +73,8 @@ class NextGamesService {
 
                     //getting the data from the section containing the country and league
 
-
-                    // const dataShowMore = await element?.$(`div.event__info`,);
-                    // const propsShowMore = await dataShowMore?.getProperty("textContent");
-                    // const showMore = await propsShowMore?.jsonValue();
-                    // if (showMore?.includes("exibir jogos")) {
-
-                    //     await dataShowMore?.click();
-                    // }
-
                     const dataCountry = await element?.$(` div > div.icon--flag.event__title > div > span.event__title--type`,);
                     const propsCountry = await dataCountry?.getProperty("textContent");
-
                     const dataLeague = await element?.$(`div > div.icon--flag.event__title > div > span.event__title--name`,);
                     const propsLeague = await dataLeague?.getProperty("textContent");
 
@@ -126,7 +122,12 @@ class NextGamesService {
                     const flagHome = await propsFlagHome?.jsonValue();
                     const flagAway = await propsFlagAway?.jsonValue();
                     const period = await propsTime?.jsonValue();
-                    const status = await propStatus?.jsonValue();
+                    var status = await propStatus?.jsonValue();
+
+
+                    if(status != "Encerrado"){
+                        status = status + "'"
+                    }
 
                     //checking if the due values are null or undefined, to replace them with a default value
                     const time = period || status;
@@ -134,65 +135,63 @@ class NextGamesService {
                     const awayScoreNumber = awayScore || "-"
 
                     //creating id's to section and games
-                    var infoId
-                    var gameId;
 
+                    var infoId: string = ""
+                    var gameId: string = ""
                     //checking if the values are null or undefined, to create the id's counting the number of games and sections
                     if (country && league != null || country && league != undefined) {
-                        count++;
-                        infoId = count.toString()
+                        // count++;
+                        infoId = uuidv4().toString()
                     }
-                    if (home && away != null || home && away != undefined) {
-                        count2++;
-                        gameId = count2.toString()
+                    else if (home && away != null || home && away != undefined) {
+                        // count2++;
+                        gameId = uuidv4().toString()
                     }
 
 
-                    //creating the objects to be returned
 
                     //checking if the values are null or undefined, to create the objects
-                    if (infoId && gameId) {
 
-                        //creating the objects
-                        const infoSection: InfoSection = {
+                    //creating the objects
+                    const infoSection: InfoSection = {
 
-                            idInfo: infoId,
-                            idSection: infoId,
-                            country: country,
-                            league: league,
-                        }
+                        idInfo: infoId,
+                        idSection: infoId,
+                        country: country,
+                        league: league,
+                    }
 
-                        const games: Games = {
+                    const games: Games = {
 
-                            idGame: gameId,
-                            idSection: infoId,
-                            home: home,
-                            away: away,
-                            homeScore: homeScoreNumber,
-                            awayScore: awayScoreNumber,
-                            flagHome: flagHome,
-                            flagAway: flagAway,
-                            time: time
-
-                        }
-
-                        const gamesInfoSection: GamesInfoSection = {
-
-                            idMain: index.toString(),
-                            infoSection: infoSection,
-                            games: games,
-                        }
-
-
-
-                        //pushing the objects to the array
-                        gamesList.push(gamesInfoSection);
-
-                        //just to check if the objects are being created
+                        idGame: gameId,
+                        idSection: infoId,
+                        home: home,
+                        away: away,
+                        homeScore: homeScoreNumber,
+                        awayScore: awayScoreNumber,
+                        flagHome: flagHome,
+                        flagAway: flagAway,
+                        time: time
 
                     }
 
+                    const gamesInfoSection: GamesInfoSection = {
+
+                        idMain: uuidv4().toString(),
+                        infoSection: infoSection,
+                        games: games,
+                    }
+
+
+
+                    //pushing the objects to the array
+                    gamesList.push(gamesInfoSection);
+
+                    //just to check if the objects are being created
+
                 }
+
+
 
 
             }
