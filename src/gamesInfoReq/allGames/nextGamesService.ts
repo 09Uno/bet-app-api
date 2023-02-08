@@ -1,11 +1,9 @@
 
 
-import puppeteer from "puppeteer";
+import puppeteer, { executablePath } from "puppeteer";
 import { v4 as uuidv4 } from 'uuid';
 
-const id = uuidv4();
 
-console.log(id);
 
 
 interface GamesInfoSection {
@@ -48,7 +46,9 @@ class NextGamesService {
             //using library puppeteer to get data from livescore.com.br or the site you want
 
             //you need to put the headless option as false to see the browser opening
-            const browser = await puppeteer.launch({ headless: false });
+            const browser = await puppeteer.launch({ headless: false , 
+                executablePath : 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+            });
             const page = await browser.newPage();
             await page.goto("https://www.livescore.in/br/");
 
@@ -130,7 +130,7 @@ class NextGamesService {
                     }
 
                     //checking if the due values are null or undefined, to replace them with a default value
-                    const time = period || status;
+                    const time = period || status
                     const homeScoreNumber = homeScore || "-"
                     const awayScoreNumber = awayScore || "-"
 
