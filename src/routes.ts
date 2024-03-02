@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { NextGamesController } from "./gamesInfoReq/allGames/nextGamesController";
+import { NextGamesController } from "./controllers/nextGamesController";
 
 // this file its responsible for manage the routers of the application.
 
@@ -13,6 +13,6 @@ router.get('/teste2', (req: Request, res: Response)=>{
 
 
 router.get('/games', new NextGamesController().handle)
-
+router.get('/teams', new NextGamesController().handle)
 
 export {router};

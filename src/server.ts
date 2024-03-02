@@ -23,11 +23,7 @@ app.use((erro: Error, req: Request, res: Response, next: NextFunction)=>{
         status: "error",
         message: "internal server error"
     })
-
-
 })
-
-
 
 app.listen(3333, ()=>{
     console.log('Servidor online!')
